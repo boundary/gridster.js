@@ -10,7 +10,6 @@
     var defaults = {
         namespace: '',
         widget_selector: 'li',
-        widget_margins: [10, 10],
         widget_base_dimensions: [400, 225],
         extra_rows: 0,
         extra_cols: 0,
@@ -55,9 +54,6 @@
     *    @param {HTMLElement|String} [options.widget_selector] Define who will
     *     be the draggable widgets. Can be a CSS Selector String or a
     *     collection of HTMLElements
-    *    @param {Array} [options.widget_margins] Margin between widgets.
-    *     The first index for the horizontal margin (left, right) and
-    *     the second for the vertical margin (top, bottom).
     *    @param {Array} [options.widget_base_dimensions] Base widget dimensions
     *     in pixels. The first index for the width and the second for the
     *     height.
@@ -124,10 +120,8 @@
         this.widgets = [];
         this.$changed = $([]);
         this.wrapper_width = this.$wrapper.width();
-        this.min_widget_width = (this.options.widget_margins[0] * 2) +
-          this.options.widget_base_dimensions[0];
-        this.min_widget_height = (this.options.widget_margins[1] * 2) +
-          this.options.widget_base_dimensions[1];
+        this.min_widget_width = this.options.widget_base_dimensions[0];
+        this.min_widget_height = this.options.widget_base_dimensions[1];
 
         this.generated_stylesheets = [];
         this.$style_tags = $([]);
@@ -461,9 +455,9 @@
         //update coords instance attributes
         $widget.data('coords').update({
             width: (new_wgd.size_x * this.options.widget_base_dimensions[0] +
-                ((new_wgd.size_x - 1) * this.options.widget_margins[0]) * 2),
+                (new_wgd.size_x - 1) * 2),
             height: (new_wgd.size_y * this.options.widget_base_dimensions[1] +
-                ((new_wgd.size_y - 1) * this.options.widget_margins[1]) * 2)
+                (new_wgd.size_y - 1) * 2)
         });
 
         $widget.attr({
@@ -817,8 +811,6 @@
     fn.draggable = function() {
         var self = this;
         var draggable_options = $.extend(true, {}, this.options.draggable, {
-            offset_left: this.options.widget_margins[0],
-            offset_top: this.options.widget_margins[1],
             container_width: this.cols * this.min_widget_width,
             limit: true,
             ignore_dragging: ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON',
@@ -859,7 +851,6 @@
     fn.resizable = function() {
         this.resize_api = this.$el.drag({
             items: '.' + this.options.resize.handle_class,
-            offset_left: this.options.widget_margins[0],
             container_width: this.container_width,
             move_element: false,
             resize: true,
@@ -1192,8 +1183,6 @@
         var rel_y = (ui.pointer.diff_top);
         var wbd_x = this.options.widget_base_dimensions[0];
         var wbd_y = this.options.widget_base_dimensions[1];
-        var margin_x = this.options.widget_margins[0];
-        var margin_y = this.options.widget_margins[1];
         var max_size_x = this.resize_max_size_x;
         var min_size_x = this.resize_min_size_x;
         var max_size_y = this.resize_max_size_y;
@@ -1203,25 +1192,25 @@
         var max_width = Infinity;
         var max_height = Infinity;
 
-        var inc_units_x = Math.ceil((rel_x / (wbd_x + margin_x * 2)) - 0.2);
-        var inc_units_y = Math.ceil((rel_y / (wbd_y + margin_y * 2)) - 0.2);
+        var inc_units_x = Math.ceil((rel_x / wbd_x) - 0.2);
+        var inc_units_y = Math.ceil((rel_y / wbd_y) - 0.2);
 
         var size_x = Math.max(1, this.resize_initial_sizex + inc_units_x);
         var size_y = Math.max(1, this.resize_initial_sizey + inc_units_y);
 
         var max_cols = (this.container_width / this.min_widget_width) -
             this.resize_initial_col + 1;
-        var limit_width = ((max_cols * this.min_widget_width) - margin_x * 2);
+        var limit_width = (max_cols * this.min_widget_width);
 
         size_x = Math.max(Math.min(size_x, max_size_x), min_size_x);
         size_x = Math.min(max_cols, size_x);
-        width = (max_size_x * wbd_x) + ((size_x - 1) * margin_x * 2);
+        width = (max_size_x * wbd_x) + (size_x - 1);
         max_width = Math.min(width, limit_width);
-        min_width = (min_size_x * wbd_x) + ((size_x - 1) * margin_x * 2);
+        min_width = (min_size_x * wbd_x) + (size_x - 1);
 
         size_y = Math.max(Math.min(size_y, max_size_y), min_size_y);
-        max_height = (max_size_y * wbd_y) + ((size_y - 1) * margin_y * 2);
-        min_height = (min_size_y * wbd_y) + ((size_y - 1) * margin_y * 2);
+        max_height = (max_size_y * wbd_y) + (size_y - 1);
+        min_height = (min_size_y * wbd_y) + (size_y - 1);
 
         if (this.resize_dir.right) {
             size_y = this.resize_initial_sizey;
@@ -2748,8 +2737,6 @@
         var max_cols = 0;
         var i;
         var rules;
-        var left;
-        var width;
 
         opts || (opts = {});
         opts.cols || (opts.cols = this.cols);
@@ -2757,12 +2744,8 @@
         opts.namespace || (opts.namespace = this.options.namespace);
         opts.widget_base_dimensions ||
             (opts.widget_base_dimensions = this.options.widget_base_dimensions);
-        opts.widget_margins ||
-            (opts.widget_margins = this.options.widget_margins);
-        opts.min_widget_width = (opts.widget_margins[0] * 2) +
-            opts.widget_base_dimensions[0];
-        opts.min_widget_height = (opts.widget_margins[1] * 2) +
-            opts.widget_base_dimensions[1];
+        opts.min_widget_width = opts.widget_base_dimensions[0];
+        opts.min_widget_height = opts.widget_base_dimensions[1];
 
         // don't duplicate stylesheets for the same configuration
         var serialized_opts = $.param(opts);
@@ -2775,27 +2758,24 @@
 
         /* generate CSS styles for cols */
         for (i = opts.cols; i >= 0; i--) {
-            left = (this.options.width_unit === '%') ? i * opts.widget_base_dimensions[0] : ((i * opts.widget_base_dimensions[0]) + (i * opts.widget_margins[0]) + ((i + 1) * opts.widget_margins[0]));
-            styles += (opts.namespace + ' [data-col="'+ (i + 1) + '"] { left:' + left + this.options.width_unit + '; }\n');
+            styles += (opts.namespace + ' [data-col="'+ (i + 1) + '"] { left:' +
+                i * opts.widget_base_dimensions[0] + this.options.width_unit + '; }\n');
         }
 
         /* generate CSS styles for rows */
         for (i = opts.rows; i >= 0; i--) {
             styles += (opts.namespace + ' [data-row="' + (i + 1) + '"] { top:' +
-                ((i * opts.widget_base_dimensions[1]) +
-                (i * opts.widget_margins[1]) +
-                ((i + 1) * opts.widget_margins[1]) ) + 'px; }\n');
+                i * opts.widget_base_dimensions[1] + 'px; }\n');
         }
 
         for (var y = 1; y <= opts.rows; y++) {
             styles += (opts.namespace + ' [data-sizey="' + y + '"] { height:' +
-                (y * opts.widget_base_dimensions[1] +
-                (y - 1) * (opts.widget_margins[1] * 2)) + 'px; }\n');
+                y * opts.widget_base_dimensions[1] + 'px; }\n');
         }
 
         for (var x = 1; x <= max_size_x; x++) {
-            width = (this.options.width_unit === '%') ? x * opts.widget_base_dimensions[0] : (x * opts.widget_base_dimensions[0] + (x - 1) * (opts.widget_margins[0] * 2));
-            styles += (opts.namespace + ' [data-sizex="' + x + '"] { width:' + width + this.options.width_unit + '; }\n');
+            styles += (opts.namespace + ' [data-sizex="' + x + '"] { width:' +
+                x * opts.widget_base_dimensions[0] + this.options.width_unit + '; }\n');
         }
 
         this.remove_style_tags();

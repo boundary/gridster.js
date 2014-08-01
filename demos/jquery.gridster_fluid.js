@@ -15,8 +15,6 @@
     
     var gridster = $('.gridster').gridster({
         widget_selector: 'gridster-panel',
-        //widget_margins: [5, 5],
-        widget_margins: [0, 0],
         widget_base_dimensions: [width_percent, 100],
         max_cols: gridsterOptions.maxCols,
         max_rows: gridsterOptions.maxRows,

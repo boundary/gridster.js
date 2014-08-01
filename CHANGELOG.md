@@ -1,3 +1,12 @@
+<a name="v0.5.2.1"></a>
+### v0.5.2.1 (2014-08-01)
+
+
+#### Features
+
+* **gridster:**
+  * add width_unit option to for % widths
+
 <a name="v0.5.2"></a>
 ### v0.5.2 (2014-06-16)
 

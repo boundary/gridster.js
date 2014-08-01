@@ -1,8 +1,8 @@
 {
-  "name": "gridster",
+  "name": "gridster-boundary",
   "title": "gridster.js",
   "description": "a drag-and-drop multi-column jQuery grid plugin",
-  "version": "0.5.2",
+  "version": "0.5.2.1",
   "homepage": "http://gridster.net/",
   "author": {
     "name": "ducksboard",

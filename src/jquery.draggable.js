@@ -308,7 +308,7 @@
         this.player_width = this.$player.width();
         this.player_height = this.$player.height();
 
-        this.set_limits(this.options.container_width);
+        this.set_limits();
 
         if (this.options.start) {
             this.options.start.call(this.$player, e, this.get_drag_data(e));

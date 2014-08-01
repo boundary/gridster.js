@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>gridster.js demo</title>
+    <link href="../dist/jquery.gridster.css" rel="stylesheet" />
+    <style>
+        ul, li {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .gridster {
+            background: #efefef;
+        }
+        .gridster-panel {
+            position: absolute;
+        }
+        .widget {
+            background: #ccc;
+            bottom: 0;
+            left: 0;
+            margin: 5px;
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="gridster-container">
+        <ul class="gridster">
+            <li class="gridster-panel" data-col="1" data-row="1" data-sizex="2" data-sizey="2">
+                <div class="widget"></div>
+            </li>
+            <li class="gridster-panel" data-col="3" data-row="1" data-sizex="2" data-sizey="2">
+                <div class="widget"></div>
+            </li>
+            <li class="gridster-panel" data-col="5" data-row="1" data-sizex="2" data-sizey="2">
+                <div class="widget"></div>
+            </li>
+            <li class="gridster-panel" data-col="1" data-row="3" data-sizex="2" data-sizey="2">
+                <div class="widget"></div>
+            </li>
+            <li class="gridster-panel" data-col="3" data-row="3" data-sizex="2" data-sizey="2">
+                <div class="widget"></div>
+            </li>
+            <li class="gridster-panel" data-col="5" data-row="3" data-sizex="2" data-sizey="2">
+                <div class="widget"></div>
+            </li>
+            <li class="gridster-panel" data-col="1" data-row="5" data-sizex="2" data-sizey="2">
+                <div class="widget"></div>
+            </li>
+            <li class="gridster-panel" data-col="3" data-row="5" data-sizex="2" data-sizey="2">
+                <div class="widget"></div>
+            </li>
+            <li class="gridster-panel" data-col="5" data-row="5" data-sizex="2" data-sizey="2">
+                <div class="widget"></div>
+            </li>
+        </ul>
+    </div>
+    <script src="../node_modules/jquery/jquery.js"></script>
+    <script src="../dist/jquery.gridster.js"></script>
+    <script src="jquery.gridster_fluid.js"></script>
+</body>
+</html>

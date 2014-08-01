@@ -1,4 +1,4 @@
-/*! gridster.js - v0.5.2 - 2014-08-01
+/*! gridster.js - v0.5.2.1 - 2014-08-01
 * http://gridster.net/
 * Copyright (c) 2014 ducksboard; Licensed MIT */
 
@@ -709,7 +709,7 @@
         this.player_width = this.$player.width();
         this.player_height = this.$player.height();
 
-        this.set_limits(this.options.container_width);
+        this.set_limits();
 
         if (this.options.start) {
             this.options.start.call(this.$player, e, this.get_drag_data(e));
@@ -822,6 +822,7 @@
         autogrow_cols: false,
         autogenerate_stylesheet: true,
         avoid_overlapped_widgets: true,
+        width_unit: 'px',
         serialize_params: function($w, wgd) {
             return {
                 col: wgd.col,
@@ -1744,7 +1745,7 @@
               'data-row': this.$player.attr('data-row'),
               'data-col': this.$player.attr('data-col'),
               css: {
-                  width: coords.width,
+                  width: coords.width + this.options.width_unit,
                   height: coords.height
               }
         }).appendTo(this.$el);
@@ -1918,7 +1919,7 @@
         };
 
         this.$resized_widget.css({
-            'min-width': this.options.widget_base_dimensions[0],
+            'min-width': this.options.widget_base_dimensions[0] + this.options.width_unit,
             'min-height': this.options.widget_base_dimensions[1]
         });
 
@@ -1928,7 +1929,7 @@
               'data-row': this.$resized_widget.attr('data-row'),
               'data-col': this.$resized_widget.attr('data-col'),
               'css': {
-                  'width': this.resize_initial_width,
+                  'width': this.resize_initial_width + this.options.width_unit,
                   'height': this.resize_initial_height
               }
         }).appendTo(this.$el);
@@ -1988,7 +1989,7 @@
     * @param {Object} ui A prepared ui object with useful drag-related data
     */
     fn.on_resize = function(event, ui) {
-        var rel_x = (ui.pointer.diff_left);
+        var rel_x = (this.options.width_unit === '%') ? (ui.pointer.diff_left / this.container_px_width) * 100 : ui.pointer.diff_left;
         var rel_y = (ui.pointer.diff_top);
         var wbd_x = this.options.widget_base_dimensions[0];
         var wbd_y = this.options.widget_base_dimensions[1];
@@ -2042,7 +2043,7 @@
 
         var css_props = {};
         !this.resize_dir.bottom && (css_props.width = Math.max(Math.min(
-            this.resize_initial_width + rel_x, max_width), min_width));
+            this.resize_initial_width + rel_x, max_width), min_width) + this.options.width_unit);
         !this.resize_dir.right && (css_props.height = Math.max(Math.min(
             this.resize_initial_height + rel_y, max_height), min_height));
 
@@ -3526,8 +3527,9 @@
             this.cols);
 
         cols = Math.min(max_cols, Math.max(cols, this.options.min_cols));
-        this.container_width = cols * this.min_widget_width;
-        this.$el.css('width', this.container_width);
+        this.container_px_width = this.$el.width();
+        this.container_width = (this.options.width_unit === '%') ? 100 : this.container_px_width;
+        this.$el.css('width', this.container_width + this.options.width_unit);
         return this;
     };
 
@@ -3542,11 +3544,13 @@
     */
     fn.generate_stylesheet = function(opts) {
         var styles = '';
-        var max_size_x = this.options.max_size_x || this.cols;
+        var max_size_x = this.options.max_size_x;
         var max_rows = 0;
         var max_cols = 0;
         var i;
         var rules;
+        var left;
+        var width;
 
         opts || (opts = {});
         opts.cols || (opts.cols = this.cols);
@@ -3572,10 +3576,8 @@
 
         /* generate CSS styles for cols */
         for (i = opts.cols; i >= 0; i--) {
-            styles += (opts.namespace + ' [data-col="'+ (i + 1) + '"] { left:' +
-                ((i * opts.widget_base_dimensions[0]) +
-                (i * opts.widget_margins[0]) +
-                ((i + 1) * opts.widget_margins[0])) + 'px; }\n');
+            left = (this.options.width_unit === '%') ? i * opts.widget_base_dimensions[0] : ((i * opts.widget_base_dimensions[0]) + (i * opts.widget_margins[0]) + ((i + 1) * opts.widget_margins[0]));
+            styles += (opts.namespace + ' [data-col="'+ (i + 1) + '"] { left:' + left + this.options.width_unit + '; }\n');
         }
 
         /* generate CSS styles for rows */
@@ -3593,9 +3595,8 @@
         }
 
         for (var x = 1; x <= max_size_x; x++) {
-            styles += (opts.namespace + ' [data-sizex="' + x + '"] { width:' +
-                (x * opts.widget_base_dimensions[0] +
-                (x - 1) * (opts.widget_margins[0] * 2)) + 'px; }\n');
+            width = (this.options.width_unit === '%') ? x * opts.widget_base_dimensions[0] : (x * opts.widget_base_dimensions[0] + (x - 1) * (opts.widget_margins[0] * 2));
+            styles += (opts.namespace + ' [data-sizex="' + x + '"] { width:' + width + this.options.width_unit + '; }\n');
         }
 
         this.remove_style_tags();
@@ -3681,8 +3682,9 @@
     * @return {Object} Returns the instance of the Gridster class.
     */
     fn.add_faux_cell = function(row, col) {
+        var widget_px_width = (this.options.width_unit === '%') ? (this.min_widget_width / 100) * this.$el.width() : this.min_widget_width;
         var coords = $({
-                        left: this.baseX + ((col - 1) * this.min_widget_width),
+                        left: this.baseX + ((col - 1) * widget_px_width),
                         top: this.baseY + (row -1) * this.min_widget_height,
                         width: this.min_widget_width,
                         height: this.min_widget_height,
